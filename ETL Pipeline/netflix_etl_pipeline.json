@@ -1,0 +1,45 @@
+{
+  "name" : "netflix_etl_pipeline",
+  "jobMode" : "VISUAL",
+  "description" : "",
+  "role" : "arn:aws:iam::381491980262:role/glue-admin-role",
+  "executionProperty" : {
+    "maxConcurrentRuns" : 1
+  },
+  "command" : {
+    "name" : "glueetl",
+    "scriptLocation" : "s3://aws-glue-assets-381491980262-ap-south-1/scripts/netflix_etl_pipeline.py",
+    "pythonVersion" : "3"
+  },
+  "defaultArguments" : {
+    "--enable-metrics" : "true",
+    "--enable-spark-ui" : "true",
+    "--spark-event-logs-path" : "s3://aws-glue-assets-381491980262-ap-south-1/sparkHistoryLogs/",
+    "--enable-job-insights" : "false",
+    "--enable-observability-metrics" : "true",
+    "--enable-glue-datacatalog" : "true",
+    "--enable-continuous-cloudwatch-log" : "true",
+    "--JOB-NAME" : "netflix-etl-pipeline",
+    "--job-bookmark-option" : "job-bookmark-disable",
+    "--job-language" : "python",
+    "--TempDir" : "s3://aws-glue-assets-381491980262-ap-south-1/temporary/"
+  },
+  "connections" : {
+    "connections" : [ "Redshift connection" ]
+  },
+  "maxRetries" : 0,
+  "allocatedCapacity" : 2,
+  "timeout" : 2880,
+  "maxCapacity" : 2.0,
+  "glueVersion" : "4.0",
+  "numberOfWorkers" : 2,
+  "workerType" : "G.1X",
+  "executionClass" : "STANDARD",
+  "codeGenConfigurationNodes" : "{\"node-1711182809899\":{\"SelectFromCollection\":{\"Index\":0,\"Inputs\":[\"node-1711182808762\"],\"Name\":\"Failed_records\"}},\"node-1711180804049\":{\"S3DirectTarget\":{\"Compression\":\"none\",\"Format\":\"json\",\"Inputs\":[\"node-1711180709553\"],\"Name\":\"Data_quality_rule_outcome_dump\",\"PartitionKeys\":[],\"Path\":\"s3://netflix-movie-show-data/outputs/rule_outcome/\",\"SchemaChangePolicy\":{\"EnableUpdateCatalog\":false}}},\"node-1711184479310\":{\"RedshiftTarget\":{\"Database\":\"netflix\",\"Inputs\":[\"node-1711184078843\"],\"Name\":\"Redshift_load\",\"RedshiftTmpDir\":\"s3://netflix-movie-show-data/outputs/temp_redshift_load/\",\"Table\":\"dev_netflix_netflix_destination_table\",\"TmpDirIAMRole\":\"arn:aws:iam::381491980262:role/redhshiftRole\"}},\"node-1711180192390\":{\"CatalogSource\":{\"Database\":\"netflix\",\"Name\":\"Netflix_Data_Catalog_source\",\"Table\":\"input\"}},\"node-1711184078843\":{\"ApplyMapping\":{\"Inputs\":[\"node-1711182809742\"],\"Mapping\":[{\"Dropped\":false,\"FromPath\":[\"index\"],\"FromType\":\"long\",\"ToKey\":\"index\",\"ToType\":\"long\"},{\"Dropped\":false,\"FromPath\":[\"id\"],\"FromType\":\"string\",\"ToKey\":\"id\",\"ToType\":\"string\"},{\"Dropped\":false,\"FromPath\":[\"title\"],\"FromType\":\"string\",\"ToKey\":\"title\",\"ToType\":\"string\"},{\"Dropped\":false,\"FromPath\":[\"type\"],\"FromType\":\"string\",\"ToKey\":\"type\",\"ToType\":\"string\"},{\"Dropped\":false,\"FromPath\":[\"description\"],\"FromType\":\"string\",\"ToKey\":\"description\",\"ToType\":\"string\"},{\"Dropped\":false,\"FromPath\":[\"release_year\"],\"FromType\":\"long\",\"ToKey\":\"release_year\",\"ToType\":\"long\"},{\"Dropped\":false,\"FromPath\":[\"age_certification\"],\"FromType\":\"string\",\"ToKey\":\"age_certification\",\"ToType\":\"string\"},{\"Dropped\":false,\"FromPath\":[\"runtime\"],\"FromType\":\"long\",\"ToKey\":\"runtime\",\"ToType\":\"long\"},{\"Dropped\":false,\"FromPath\":[\"imdb_id\"],\"FromType\":\"string\",\"ToKey\":\"imdb_id\",\"ToType\":\"string\"},{\"Dropped\":false,\"FromPath\":[\"imdb_score\"],\"FromType\":\"double\",\"ToKey\":\"imdb_score\",\"ToType\":\"double\"},{\"Dropped\":false,\"FromPath\":[\"imdb_votes\"],\"FromType\":\"double\",\"ToKey\":\"imdb_votes\",\"ToType\":\"double\"},{\"Dropped\":false,\"FromPath\":[\"DataQualityRulesPass\"],\"FromType\":\"array\",\"ToKey\":\"DataQualityRulesPass\",\"ToType\":\"array\"},{\"Dropped\":false,\"FromPath\":[\"DataQualityRulesFail\"],\"FromType\":\"array\",\"ToKey\":\"DataQualityRulesFail\",\"ToType\":\"array\"},{\"Dropped\":false,\"FromPath\":[\"DataQualityRulesSkip\"],\"FromType\":\"array\",\"ToKey\":\"DataQualityRulesSkip\",\"ToType\":\"array\"},{\"Dropped\":false,\"FromPath\":[\"DataQualityEvaluationResult\"],\"FromType\":\"string\",\"ToKey\":\"DataQualityEvaluationResult\",\"ToType\":\"string\"}],\"Name\":\"Drop_columns_and_change_dataType\"}},\"node-1711183882841\":{\"S3DirectTarget\":{\"Compression\":\"none\",\"Format\":\"json\",\"Inputs\":[\"node-1711182809899\"],\"Name\":\"Bad_quality_data_dump\",\"PartitionKeys\":[],\"Path\":\"s3://netflix-movie-show-data/outputs/bad_quality_data_dump/\",\"SchemaChangePolicy\":{\"EnableUpdateCatalog\":false}}},\"node-1711180709553\":{\"SelectFromCollection\":{\"Index\":0,\"Inputs\":[\"node-1711180438089\"],\"Name\":\"ruleOutcomes\"}},\"node-1711180713431\":{\"SelectFromCollection\":{\"Index\":0,\"Inputs\":[\"node-1711180438089\"],\"Name\":\"rowLevelOutcomes\"}},\"node-1711182809742\":{\"SelectFromCollection\":{\"Index\":0,\"Inputs\":[\"node-1711182808762\"],\"Name\":\"default_group\"}},\"node-1711180438089\":{\"EvaluateDataQualityMultiFrame\":{\"AdditionalDataSources\":{},\"AdditionalOptions\":{\"performanceTuning.caching\":\"CACHE_NOTHING\"},\"Inputs\":[\"node-1711180192390\"],\"Name\":\"Evaluate Data Quality\",\"PublishingOptions\":{\"CloudWatchMetricsEnabled\":true,\"ResultsPublishingEnabled\":true,\"ResultsS3Prefix\":\"\"},\"Ruleset\":\"# Example rules: Completeness \\\"colA\\\" between 0.4 and 0.8, ColumnCount > 10\\nRules = [\\n    ColumnValues \\\"imdb_score\\\" >= 7.0\\n]\",\"StopJobOnFailureOptions\":{}}},\"node-1711182808762\":{\"Route\":{\"GroupFiltersList\":[{\"Filters\":[],\"GroupName\":\"default_group\",\"LogicalOperator\":\"AND\"},{\"Filters\":[{\"Negated\":false,\"Operation\":\"REGEX\",\"Values\":[{\"Type\":\"CONSTANT\",\"Value\":[\"Failed\"]},{\"Type\":\"COLUMNEXTRACTED\",\"Value\":[\"DataQualityEvaluationResult\"]}]}],\"GroupName\":\"Failed_records\",\"LogicalOperator\":\"AND\"}],\"Inputs\":[\"node-1711180713431\"],\"Name\":\"Conditional Router\"}}}",
+  "sourceControlDetails" : {
+    "provider" : "GITHUB",
+    "repository" : "Netflix-movie-show-analysis",
+    "branch" : "main",
+    "folder" : "ETL Pipeline"
+  }
+}
