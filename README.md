@@ -14,7 +14,7 @@ I have created an ETL pipeline designed to extract data from the source S3, tran
 * Data Extraction: Retrieve metadata of Netflix movies and shows from the source S3 using Glue Crawler.
 * Data Transformation: Apply quality checks, cleaning, and standardization to ensure high-quality data.
 * Data Loading: Load transformed data into the destination Redshift table for analysis. And Loading Bad Data into S3 bucket for further analysis.
-* Monitoring and Logging: Monitor the ETL pipeline's performance and log any errors or anomalies for easy troubleshooting using and getting alerts on the gmail.
+* Monitoring and Logging: Monitor the ETL pipeline's performance and log any errors or anomalies for easy troubleshooting and getting alerts on the gmail.
 
 ## Technology Used
 * Amazon Web Services
