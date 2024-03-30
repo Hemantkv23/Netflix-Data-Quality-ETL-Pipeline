@@ -1,0 +1,66 @@
+creating visual ETL job in GLUE
+
+1. select AWS Glue Data Catalog as Source 
+	choose the Data base (netflix), table(input)
+	select the IAM role (should have access to S3, glue)
+	
+2. Then we have to Evaluate the Quality of Data. For that select "Evaluate Data Quality"
+			Rules = [
+		ColumnValues "imdb_score" >= 7.0
+	]
+	Here Evaluting the quality movies and shows which have IMDB rating above 7
+	
+	Under "Data quality transform output" 
+	Enable both "Data quality results" and "Original data"
+	Under "Original data" Enable "Add new columns to indicate data quality errors"
+	
+3. Storing the Rule outcome Data into the S3
+	Select target "S3"
+	selecting the format as JSON and Compression as None
+	Select the target location (create output folder under our bucket)
+	
+4. for rowLevelOutcomes
+	add transform (Conditional Router)
+	change the outcome group name -> Failed Record
+	filter condition :
+						key = DataQualityEvaluationResult
+						operation = matches
+						value = Failed
+						
+5. Dumping the Failed records into the s3 
+	select target as S3 (rename it to "bad_quality_data_dump") 
+	target = netflix-movie-show-data/output/bad_quality_data_dump/
+	selecting the format as JSON and Compression as None
+	
+6. For Success group (default_group)
+	select "Change Schema"
+		Rename- Drop_columns_and_change_dataType
+		drop the data quality check columns
+		and convert the long columns into int
+		
+7. To load the Data select target as "AWS Glue Data Catalog"
+	Database - netflix
+	table - dev_netflix_netflix_destination_table
+	select temperarory load in "netflix-movie-show-data/output/temp_redshift_load"
+	iam role - same role associated with our redshift cluster
+	
+8. Under Job Details tab
+	Requested number of workers: 2
+	in Job Paramters 
+	key = --JOB-NAME
+	
+9. create s3 enpoint in the same vpc that of redshift cluster
+	create s3 endpoint in redshift VPC 
+	give s3 endpoint name 
+	- > select services s3 (Service_Name = com.amazonaws.ap-south-1.s3) select Gateway 
+	->select Redshift's VPC -> select the routing table -> policy => Full Access
+	
+	cloudwatch endpoint
+	Service_Name = com.amazonaws.ap-south-1.monitoring
+	select our vpc 
+	select subnet which is associated with etl job (check in job-details)
+
+	glue-vpc endpoint
+	Service_Name = com.amazonaws.ap-south-1.glue
+	select our vpc 
+	select subnet which is associated with etl job (check in job-details)
