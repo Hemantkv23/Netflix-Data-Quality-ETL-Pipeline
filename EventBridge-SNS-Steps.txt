@@ -1,0 +1,29 @@
+Creating EventBridge
+
+we were sending our data quality result status(Failed or Success) to CloudWatch
+now we are trying to capture it using EventBridge Pattern and integrate it to SNS Topic.
+ So that whenever this Pipeline gets executed we can send the notification with failed or success status
+ 
+ Steps:
+ 
+ 1. create EventBridge rule (name- netflixDQCheckStatusRule)
+	select Rule Type - "Rule with an event pattern"
+	Event Source - "AWS events or EventBridge partner events"
+	Under Event Pattern
+		select AWS Service - "Glue Data Quality"
+		event type - " Data Quality Evaluation Results Available"
+		Event Type Specification 1 - specific state- Select both "Success" "Failed"
+			Below Pattern will be created
+				{
+					"source": ["aws.glue-dataquality"],
+					"detail-type": ["Data Quality Evaluation Results Available"],
+					"detail": {
+						"state": ["FAILED", "SUCCEEDED"]
+					}
+				}
+		
+		Select Target "SNS Topic"
+		
+			create SNS Topic and subscribe it to desired email id
+		
+		select the created topic 
