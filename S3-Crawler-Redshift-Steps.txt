@@ -1,0 +1,43 @@
+1. Create S3 bucket s3://netflix-movie-show-data/ and upload the file in input folder
+2. create a Crawler to crawl our source data and create the meta data out of it.
+3. While creating the crawler we have to select glue database. Create Netflix database for it.
+4. Run the Crawler and after success view the data in Athena
+
+5. Setting up Redshift Cluster-
+	create redshift cluster
+	Node type - dc2.large
+	Number of nodes- 1
+
+create IAM role for redshift 
+attach policies-
+	AmazonRedshiftAllCommandsFullAccess
+	AmazonS3FullAccess
+	AWSGlueConsoleFullAccess
+	
+Run Below query in the redshift	
+	create schema netflix;
+	
+	CREATE TABLE netflix.netflix_destination_table (
+		index INT,
+		id VARCHAR(10),
+		title VARCHAR(255),
+		type VARCHAR(50),
+		description VARCHAR(2000),
+		release_year INT,
+		age_certification VARCHAR(10),
+		runtime INT,
+		imdb_id VARCHAR(20),
+		imdb_score DECIMAL(3,1),
+		imdb_votes INT
+	);
+	
+6. create crawler for redshift destination table 
+	name- netflix_redshift_des_table_crawler
+	datasource - JDBC
+	connection name - Redshift connection 
+		create redshift connections
+		create connection -> select redshift as DS -> Chose redshift cluster -> give username and pwd > create
+	include path - dev/netflix/netflix_destination_table (redshift table's full path)
+	
+	target database - netflix
+	
